@@ -1,0 +1,6 @@
+{
+  "name": "V15 个性化卡片制作站",
+  "description": "V15 虚拟国家专属个性化卡片制作站，免登录制作、实时预览、支持导出 JSON 与高清图片。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

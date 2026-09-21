@@ -1,11 +1,62 @@
-<div align="center">
+# FansLand 2.0 个性化卡片制作站
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+专为虚拟国家游戏（FansLand 2.0）打造的个性化卡片制作站。任何访问者无需注册、无需登录，打开即可制作卡片并导出 JSON 与高清图片交付游戏运营者。
 
-  <h1>Built with AI Studio</h2>
+## 技术栈
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+- **前端**：Vite + React + TypeScript + Tailwind CSS
+- **后端**：Node.js 22 + Express + 内置 SQLite (`node:sqlite`，无额外第三方数据库依赖)
+- **导出依赖**：`html-to-image`（纯净轻量，用于把卡片实时预览导出为 PNG）
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## 数据存储与备份重要说明
 
-</div>
+应用运行时会在此运行目录下生成两个核心数据载体：
+1. `cards.db`：SQLite 数据库文件，存储所有卡片数据。
+2. `uploads/`：用户上传并压缩后的卡片配图目录。
+
+> **⚠️ 备份与数据持久化提示：**
+> 这两个路径（`cards.db` 与 `uploads/`）是本站的全部持久化数据。
+> 在服务器迁移、升级或备份时，必须完整覆盖备份这两个文件/目录，即可无损恢复所有卡片与配图。
+
+## 本地启动指南
+
+### 方式一：统一全栈模式（推荐，与 AI Studio / Cloud Run 容器一致）
+```bash
+npm install
+npm run dev
+```
+前端与后端将同时启动在 `http://localhost:3000`，由 Express 挂载 Vite 中间件，自动代理 API。
+
+### 方式二：独立分离模式（按照 server/ 与 web/ 结构）
+1. 启动后端（端口 8787）：
+   ```bash
+   npm run server
+   ```
+2. 启动前端 Vite（端口 5173，自动将 `/api` 与 `/uploads` 代理到 8787）：
+   ```bash
+   npx vite --port 5173
+   ```
+
+### 生产打包与启动
+```bash
+npm run build
+npm start
+```
+
+## 功能特点
+
+1. **制作卡片**：
+   - 名称（≤ 24 字，必填）
+   - 一句话说明（≤ 60 字，展示在卡片第二行）
+   - 配图上传：PNG / JPEG / WebP / GIF（前端 Canvas 自动缩放到长边 1600px、质量 0.82；透明转底防黑；服务端严格拒绝 SVG 并做 2MB 限制）
+   - 文字标记（≤ 6 字）+ 可选删除线（配图与文字标记至少选一项）
+   - 固定 7 大分区：语言 (`babel`)、公共立场 (`politics`)、地区与文化 (`culture`)、游戏圈 (`game`)、创作与学术 (`creative`)、娱乐与阅读 (`media`)、粉丝大陆身份 (`fansland`)
+2. **两列密集卡片视觉**：
+   - 直角、无边框、两列密集排布（间距 3px）
+   - 依靠卡片 ID 的哈希值确定背景色系（同 ID 永远同色）
+   - 保持配图原始宽高比，不拉伸不裁剪
+3. **我的卡片**：基于本地浏览器存储卡包，支持继续编辑、复制副本、删除与单张/批量导出。
+4. **双重导出**：
+   - **导出 JSON**：格式严格符合游戏导入规范，批量导出输出数组。
+   - **导出图片**：实时将预览卡片渲染为清晰 PNG。
+5. **卡片分享**：`/c/<id>` 专属预览页面，支持「导出 JSON / 导出图片 / 复制一张到我的卡片」。
